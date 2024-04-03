@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Panda : MonoBehaviour
 {
-    [SerializeField] private float maxDistance = 1.5f;
+    [SerializeField] private float maxDistance = 1.6f;
     [SerializeField] private SpringJoint2D springJoint2D; 
     [SerializeField] private Transform playerTransform;
     [SerializeField] private Rigidbody2D rb;

@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
     private float horizontal;
-    private float speed = 8f;
-    private float jumpingPower = 16f;
+    private CustomInput input = null;
+    private float speed = 6f;
+    private float jumpingPower = 12f;
     private bool isFacingRight = true;
     private bool isDead = false;
 
@@ -14,21 +16,46 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Collider2D collider;
-
-    void Update()
+    private void Awake()
     {
-        if(!isDead)horizontal = Input.GetAxisRaw("Horizontal");
+        input = new CustomInput();
+    }
 
-        if (Input.GetButtonDown("Jump") && IsGrounded())
+    private void OnEnable() 
+    {
+        input.Enable();
+        input.Player.XMovement.performed += OnXMovementPerformed;
+        input.Player.XMovement.canceled += OnXMovementCancelled;
+        input.Player.Jump.performed += OnJumpPerformed;
+    } 
+
+    private void OnDisable()
+    {
+        input.Disable();
+        input.Player.XMovement.performed -= OnXMovementPerformed;
+        input.Player.XMovement.canceled -= OnXMovementCancelled;
+        input.Player.Jump.performed -= OnJumpPerformed;
+    }
+
+    private void OnXMovementPerformed(InputAction.CallbackContext value)
+    {
+        if(!isDead)horizontal = value.ReadValue<float>();
+    }
+    private void OnXMovementCancelled(InputAction.CallbackContext value)
+    {
+        horizontal = 0;
+    }
+    private void OnJumpPerformed(InputAction.CallbackContext value)
+    {
+        if(IsGrounded())
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
         }
+    }
 
-        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
-        }
 
+    void Update()
+    {
         Flip();
     }
 
@@ -67,8 +94,8 @@ public class PlayerMovement : MonoBehaviour
         if(collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "Spike")
         {
             int hitDirection = 0;
-            if(collision.gameObject.transform.position.x > transform.position.x)hitDirection = 1;
-            else hitDirection = -1;
+            if(collision.gameObject.transform.position.x > transform.position.x)hitDirection = -1;
+            else hitDirection = 1;
             Death(hitDirection);
         }
     }
