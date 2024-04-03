@@ -20,4 +20,8 @@ public class Panda : MonoBehaviour
             springJoint2D.enabled = true;
         }
     }
+    public Vector2 getVelocity()
+    {
+        return rb.velocity;
+    }
 }

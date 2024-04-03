@@ -8,14 +8,16 @@ public class PlayerMovement : MonoBehaviour
     private float speed = 8f;
     private float jumpingPower = 16f;
     private bool isFacingRight = true;
+    private bool isDead = false;
 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Collider2D collider;
 
     void Update()
     {
-        horizontal = Input.GetAxisRaw("Horizontal");
+        if(!isDead)horizontal = Input.GetAxisRaw("Horizontal");
 
         if (Input.GetButtonDown("Jump") && IsGrounded())
         {
@@ -48,6 +50,26 @@ public class PlayerMovement : MonoBehaviour
             Vector3 localScale = transform.localScale;
             localScale.x *= -1f;
             transform.localScale = localScale;
+        }
+    }
+
+    private void Death(int hitDirection)
+    {
+        isDead = true;
+        rb.constraints = RigidbodyConstraints2D.None;
+        rb.AddForce(new Vector2(hitDirection*2f,8f), ForceMode2D.Impulse);
+        rb.AddTorque(100f);
+        collider.enabled = false;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.tag == "Enemy" || collision.gameObject.tag == "Spike")
+        {
+            int hitDirection = 0;
+            if(collision.gameObject.transform.position.x > transform.position.x)hitDirection = 1;
+            else hitDirection = -1;
+            Death(hitDirection);
         }
     }
 }

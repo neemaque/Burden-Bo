@@ -8,6 +8,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float speed;
     [SerializeField] private GameObject player;
     [SerializeField] private Collider2D collider;
+    [SerializeField] private float visionDistance;
     private Transform target;
     private string currentState;
     void Start()
@@ -17,7 +18,7 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if(Mathf.Abs(transform.position.x - player.transform.position.x) < 3f && Mathf.Abs(transform.position.y - player.transform.position.y) < 0.5f)
+        if(Mathf.Abs(transform.position.x - player.transform.position.x) < visionDistance && Mathf.Abs(transform.position.y - player.transform.position.y) < 1f)
         {
             currentState = "chasing";
         }
